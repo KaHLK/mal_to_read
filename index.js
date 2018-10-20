@@ -50,7 +50,13 @@ async function main(){
         chpts <= max_chapter
     })
     .map(i => {return {title: i.manga_title, chapters: i.manga_num_chapters}})
-    .sort((a,b) => sort_factor * (a.chapters - b.chapters))
+    .sort((a, b) => {
+      let co = sort_factor * (a.chapters - b.chapters)
+      if(co === 0){
+        return `${a.title}`.localeCompare(`${b.title}`)
+      }
+      return co
+    })
     .filter(i => {
       let ign = ignore.indexOf(i.title) > -1
       if(ign){
