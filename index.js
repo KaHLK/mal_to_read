@@ -34,6 +34,8 @@ async function main(){
   let max_chpt = 0
   let title_length = 0
 
+  let ignored = []
+
   list = list
     .filter(i => {
       let chpts = i.manga_num_chapters
@@ -49,23 +51,41 @@ async function main(){
     })
     .map(i => {return {title: i.manga_title, chapters: i.manga_num_chapters}})
     .sort((a,b) => sort_factor * (a.chapters - b.chapters))
+    .filter(i => {
+      let ign = ignore.indexOf(i.title) > -1
+      if(ign){
+        ignored.push(i)
+      }
+      return !ign
+    })
+
   for(let i of list){
     let tl = i.title.length
     if(tl > title_length){
       title_length = tl
     }
   }
-  console.log("Min chapters:", min_chpt, "| Max chapters:", max_chpt)
-  console.log()
+
   const sprint_str = `%-${title_length}s | %8s`
   let header = sprintf(sprint_str, "Title", "Chapters")
+
+  console.log("Min chapters:", min_chpt, "| Max chapters:", max_chpt)
+
+  console.log("\nIgnored:")
+  console.log(header)
+  console.log("-".repeat(header.length))
+  for(let i of ignored) {
+    console.log(sprintf(sprint_str, i.title, i.chapters))
+  }
+
+  console.log()
   console.log(header)
   console.log("-".repeat(header.length))
   for(let i of list){
     console.log(sprintf(sprint_str, i.title, i.chapters))
   }
 
-  console.log("Items after filter:", list.length)
+  console.log("\nItems after filter:", list.length)
 }
 
 async function fetchFromMal(user, offset, status){
@@ -85,3 +105,20 @@ async function fetchFromMal(user, offset, status){
   list = list.concat(partial_list)
   return true
 }
+
+const ignore = [
+  "Ai no Kenkyuu",
+  "Watashi no Suki na Senpai",
+  "Tomodachi",
+  "Suuji Danshi x Renai Shoujo",
+  "Futometic Love",
+  "Niizuma Danshi",
+  "E no Genten",
+  "Mappa Teacher",
+  "Gensou Kojiki Den",
+  "Gochuumon wa, Okimari desu ka.",
+  "Kotodama Koro koro",
+  "Koi no Sankaku",
+  "Relieving Stress",
+  "Hisesshoku-kei Lovers",
+]
